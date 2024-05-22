@@ -1,14 +1,14 @@
-import React, {useEffect, useMemo, useRef} from 'react';
-import {useDndContext, ClientRect, UniqueIdentifier} from '@dnd-kit/core';
-import {useIsomorphicLayoutEffect, useUniqueId} from '@dnd-kit/utilities';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { useDndContext, ClientRect, UniqueIdentifier } from '@dnd-kit/core';
+import { useIsomorphicLayoutEffect, useUniqueId } from '@dnd-kit/utilities';
 
-import type {Disabled, SortingStrategy} from '../types';
-import {getSortedRects, itemsEqual, normalizeDisabled} from '../utilities';
-import {rectSortingStrategy} from '../strategies';
+import type { Disabled, SortingStrategy } from '../types';
+import { getSortedRects, itemsEqual, normalizeDisabled } from '../utilities';
+import { rectSortingStrategy } from '../strategies';
 
 export interface Props {
   children: React.ReactNode;
-  items: (UniqueIdentifier | {id: UniqueIdentifier})[];
+  items: (UniqueIdentifier | { id: UniqueIdentifier })[];
   strategy?: SortingStrategy;
   id?: string;
   disabled?: boolean | Disabled;
@@ -59,6 +59,7 @@ export function SortableContext({
   } = useDndContext();
   const containerId = useUniqueId(ID_PREFIX, id);
   const useDragOverlay = Boolean(dragOverlay.rect !== null);
+  // items中必须存在id属性
   const items = useMemo<UniqueIdentifier[]>(
     () =>
       userDefinedItems.map((item) =>
@@ -66,6 +67,7 @@ export function SortableContext({
       ),
     [userDefinedItems]
   );
+  // active 当前正在拖拽的元素
   const isDragging = active != null;
   const activeIndex = active ? items.indexOf(active.id) : -1;
   const overIndex = over ? items.indexOf(over.id) : -1;

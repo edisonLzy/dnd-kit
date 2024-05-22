@@ -1,5 +1,5 @@
-import {arrayMove} from '../utilities';
-import type {SortingStrategy} from '../types';
+import { arrayMove } from '../utilities';
+import type { SortingStrategy } from '../types';
 
 export const rectSortingStrategy: SortingStrategy = ({
   rects,
@@ -7,6 +7,7 @@ export const rectSortingStrategy: SortingStrategy = ({
   overIndex,
   index,
 }) => {
+
   const newRects = arrayMove(rects, overIndex, activeIndex);
 
   const oldRect = rects[index];
@@ -16,6 +17,7 @@ export const rectSortingStrategy: SortingStrategy = ({
     return null;
   }
 
+  // Calculate the delta between the old and new positions
   return {
     x: newRect.left - oldRect.left,
     y: newRect.top - oldRect.top,

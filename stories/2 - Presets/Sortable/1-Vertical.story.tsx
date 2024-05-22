@@ -1,8 +1,17 @@
-import React from 'react';
-import {MeasuringStrategy, UniqueIdentifier} from '@dnd-kit/core';
-import {restrictToWindowEdges} from '@dnd-kit/modifiers';
+import React, { useState } from 'react';
+import {
+  DndContext,
+  MeasuringStrategy,
+  UniqueIdentifier,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import {
   AnimateLayoutChanges,
+  SortableContext,
+  arrayMove,
   defaultAnimateLayoutChanges,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
@@ -11,8 +20,10 @@ import {
   restrictToFirstScrollableAncestor,
 } from '@dnd-kit/modifiers';
 
-import {createRange} from '../../utilities';
-import {Sortable, Props as SortableProps} from './Sortable';
+import { createRange } from '../../utilities';
+import { Sortable, Props as SortableProps } from './Sortable';
+import { SortableItem as DemoItem } from '../../components/SortableItem';
+import { PointerSensor } from '@dnd-kit/core';
 
 export default {
   title: 'Presets/Sortable/Vertical',
@@ -21,6 +32,39 @@ export default {
 const props: Partial<SortableProps> = {
   strategy: verticalListSortingStrategy,
   itemCount: 50,
+};
+
+export const BasicDemo = () => {
+  const [items, setItems] = useState([1, 2, 3]);
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  return (
+    <DndContext
+      sensors={sensors}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext items={items} strategy={verticalListSortingStrategy}>
+        {items.map((id) => (
+          <DemoItem key={id} id={id}>
+            {id}
+          </DemoItem>
+        ))}
+      </SortableContext>
+    </DndContext>
+  );
+
+  function handleDragEnd(event: any) {
+    const { active, over } = event;
+
+    if (active.id !== over.id) {
+      setItems((items) => {
+        const oldIndex = items.indexOf(active.id);
+        const newIndex = items.indexOf(over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
 };
 
 export const BasicSetup = () => <Sortable {...props} />;
@@ -93,7 +137,7 @@ export const VariableHeights = () => {
   return (
     <Sortable
       {...props}
-      wrapperStyle={({id}) => {
+      wrapperStyle={({ id }) => {
         return {
           height: randomHeights[Number(id)],
         };
@@ -128,7 +172,7 @@ export const MarginBetweenItems = () => {
   return (
     <Sortable
       {...props}
-      wrapperStyle={({index}) => {
+      wrapperStyle={({ index }) => {
         return {
           marginBottom: getMargin(index),
         };
@@ -141,7 +185,7 @@ export const RerenderBeforeSorting = () => {
   return (
     <Sortable
       {...props}
-      wrapperStyle={({active}) => {
+      wrapperStyle={({ active }) => {
         return {
           height: active ? 100 : 80,
         };
@@ -152,13 +196,13 @@ export const RerenderBeforeSorting = () => {
 
 export const RemovableItems = () => {
   const animateLayoutChanges: AnimateLayoutChanges = (args) =>
-    defaultAnimateLayoutChanges({...args, wasDragging: true});
+    defaultAnimateLayoutChanges({ ...args, wasDragging: true });
 
   return (
     <Sortable
       {...props}
       animateLayoutChanges={animateLayoutChanges}
-      measuring={{droppable: {strategy: MeasuringStrategy.Always}}}
+      measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
       removable
       handle
     />
@@ -167,6 +211,6 @@ export const RemovableItems = () => {
 
 export const TransformedContainer = () => {
   return (
-    <Sortable {...props} style={{transform: 'translate3d(100px, 100px, 0)'}} />
+    <Sortable {...props} style={{ transform: 'translate3d(100px, 100px, 0)' }} />
   );
 };
